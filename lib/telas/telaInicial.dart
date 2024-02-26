@@ -38,12 +38,14 @@ class _TelaInicial extends State<TelaInicial> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const TelaProdutos()),
+                  MaterialPageRoute(
+                      builder: (context) => const TelaProdutos(
+                            listaProdutos: [],
+                          )),
                 );
               },
               style: ElevatedButton.styleFrom(
-                maximumSize: Size(1000000, 100),
-                primary: const Color.fromARGB(255, 8, 118, 169), // Cor do botão
+                backgroundColor: const Color.fromARGB(255, 8, 118, 169), // Cor do botão
               ),
               child: Text(
                 "Produtos",

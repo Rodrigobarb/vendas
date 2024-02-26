@@ -1,14 +1,20 @@
+
 import 'package:flutter/material.dart';
 import 'package:vendas/componentes/produtos.dart';
+import 'package:vendas/telas/telaCarrinho.dart';
 
 class TelaProdutos extends StatefulWidget {
-  const TelaProdutos({Key? key}) : super(key: key);
+  final List<Produto> listaProdutos;
+
+  const TelaProdutos({Key? key, required this.listaProdutos}) : super(key: key);
 
   @override
   _TelaProdutosState createState() => _TelaProdutosState();
 }
 
 class _TelaProdutosState extends State<TelaProdutos> {
+  List<Produto> produtosSelecionados = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,13 +24,35 @@ class _TelaProdutosState extends State<TelaProdutos> {
           IconButton(
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
-              // Lógica para abrir a tela do carrinho
-              print('Botão de Carrinho Pressionado');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TelaCarrinho(
+                    listaProdutosCarrinho: produtosSelecionados,
+                  ),
+                ),
+              );
             },
           ),
         ],
       ),
-      body: Produtos(),
+      body: Produtos(
+        listaProdutosArg: widget.listaProdutos,
+        onProdutoSelecionadoArg: (produto) {
+          if (produto.quantidade > 0) {
+            if (produtosSelecionados.contains(produto)) {
+              produtosSelecionados.remove(produto);
+            }
+            produtosSelecionados.add(produto);
+
+            setState(() {});
+          } else {
+            produtosSelecionados.remove(produto);
+          }
+        },
+      ),
     );
   }
 }
+
+
