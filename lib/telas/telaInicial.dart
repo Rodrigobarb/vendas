@@ -31,29 +31,50 @@ class _TelaInicial extends State<TelaInicial> {
       body: Container(
         alignment: Alignment.center,
         color: Colors.white, // Cor de fundo
-        child: Stack(
-          alignment: Alignment.bottomCenter,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+              "Toque em Produtos para iniciar",
+              style: TextStyle(
+                fontSize: 26,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const TelaProdutos(
-                            listaProdutos: [],
-                          )),
+                    builder: (context) => TelaProdutos(
+                      listaProdutos: [],
+                      onCarrinhoConfirmado: (produtos) {
+                        print('Produtos no carrinho: $produtos');
+                      },
+                      listaPromocoes: [],
+                    ),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 8, 118, 169), // Cor do botão
+                elevation: 10,
+                backgroundColor: Color.fromARGB(174, 214, 0, 238), // Cor do botão
+                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               child: Text(
                 "Produtos",
                 style: TextStyle(
                   color: Colors.white, // Cor do texto
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

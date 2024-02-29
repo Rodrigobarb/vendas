@@ -1,192 +1,294 @@
 import 'package:flutter/material.dart';
+import 'package:vendas/utils/listaProdutosar.dart';
+import 'package:vendas/utils/listaPromo.dart';
 
 class Produtos extends StatefulWidget {
   final Null Function(dynamic produto) onProdutoSelecionadoArg;
+  final List<ListaPromo> listaPromocoes;
 
   const Produtos({
     Key? key,
-    required List<Produto> listaProdutosArg,
+    required List<ListaProdutos> listaProdutosArg,
     required this.onProdutoSelecionadoArg,
+    required this.listaPromocoes,
   }) : super(key: key);
 
   @override
   State<Produtos> createState() => _ProdutosState();
 }
-class Produto {
-  final List<int> id;
-  final String nome;
-  final double preco;
-  int quantidade;
-  bool isPromocao;
-  double descontoPercentual;
-  String nomePromocao;
-
-  Produto(this.id, this.nome, this.preco, this.quantidade,
-      {this.isPromocao = false, this.descontoPercentual = 0.0, this.nomePromocao = ''});
-}
-
-
 
 class _ProdutosState extends State<Produtos> {
-  List<Produto> listaProdutos = [
-    Produto([1],'Hamburguer', 14.00, 0),
-    Produto([2],'Churros', 10.00, 0),
-    Produto([3],'Nachos', 20.00, 0),
-    Produto([4],'Maçã', 5.00, 0),
-    Produto([5],'Donuts', 7.00, 0),
-    Produto([6],'Coca-Cola', 4.00, 0),
-    Produto([7],'Agua', 3.00, 0),
-    Produto([8],'Sushi', 80.00, 0),
-    Produto([9],'Pastel', 8.00, 0),
-    Produto([10],'Bolo', 10.00, 0),
-    Produto([11],'Pudim', 12.00, 0),
-    Produto([12],'Pizza', 24.00, 0),
-    Produto([13],'Banana', 3.00, 0),
-    Produto([14],'Mamão', 5.00, 0),
-    Produto([15],'Cachorro Quente', 10.00, 0),
-    Produto([16],'Salada', 5.00, 0),
-    Produto([17],'Ração Cachorro', 4.00, 0),
-    Produto([18],'Ração Gato', 4.00, 0),
-    Produto([19],'Cerveja', 3.50, 0),
-    Produto([20],'Skol Beats', 8.00, 0),
-
-  ];
-
-    List<Produto> listaPromocoes = [
-   Produto([1,2,3,9,15], "DESCONTAÇO DE LANCHES RADICAL", 10.0,  0),
-   Produto([4,13,14], "SUPER PROMOÇÃO DE FRUTAS :D", 20.0,  0),
-   Produto([5,10,11], "O CONFEITEIRO FICOU MALUCO!!!!", 15.0,  0),
-   Produto([7,6,20], "TÁ COM SEDE PARCEIRO? TOMA UM GOLE!", 14.0,  0),
-    ];
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView.builder(
         itemCount: listaProdutos.length,
         itemBuilder: (context, index) {
-          return _buildProdutoItem(listaProdutos[index]);
+          return GestureDetector(
+              onTap: () {
+                _mostrarDetalhesProduto(listaProdutos[index]);
+              },
+              child: buildProdutoItem(listaProdutos[index]));
         },
       ),
     );
   }
 
-Widget _buildProdutoItem(Produto produto) {
-  bool isPromocao = false;
-  double precoComDesconto = produto.preco;
-  double descontoPercentual = 0.0;
-  String nomePromocao = '';
+  Widget buildProdutoItem(ListaProdutos produto) {
+    bool isPromocao = false;
+    double precoComDesconto = produto.preco;
+    double descontoPercentual = 0.0;
+    String nomePromocao = '';
 
-  // Verifica se o produto está associado a alguma promoção
-  for (var promocao in listaPromocoes) {
-    if (promocao.id.contains(produto.id[0])) {
-      isPromocao = true;
-      descontoPercentual = promocao.preco;
-      precoComDesconto = produto.preco - (produto.preco * descontoPercentual / 100);
-      nomePromocao = promocao.nome;
-      break;
+    for (var promocao in listaProdutoPromocao) {
+      if (promocao.idPromo.contains(produto.idPromo[0])) {
+        isPromocao = true;
+        descontoPercentual = promocao.desconto;
+        precoComDesconto =
+            produto.preco - (produto.preco * descontoPercentual / 100);
+        nomePromocao = promocao.nomePromocao;
+        break;
+      }
     }
-  }
 
-  return Card(
-    margin: EdgeInsets.all(8.0),
-    child: ListTile(
-      title: Text(produto.nome, style: TextStyle(color: Colors.black ,fontWeight: FontWeight.w400),),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Quantidade: ${produto.quantidade}',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.normal, // Adiciona negrito
-            ),
-          ),
-          if (isPromocao)
-            SizedBox(height: 4.0), // Adiciona espaçamento
-          if (isPromocao)
-            Text('Promoção: $nomePromocao',
-              style: TextStyle(
-                color: Colors.green,
-                fontWeight: FontWeight.bold, // Adiciona negrito
+    return Card(
+      margin: EdgeInsets.all(8.0),
+      child: ListTile(
+        title: Text(
+          produto.nome,
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (isPromocao) SizedBox(height: 4.0),
+            if (isPromocao)
+              Text(
+                'Promoção:  $nomePromocao',
+                style: TextStyle(
+                  color: Colors.purple,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            if (isPromocao) SizedBox(height: 4.0),
+            RichText(
+              text: TextSpan(
+                children: [
+                  if (isPromocao)
+                    TextSpan(
+                      text: 'R\$ ${produto.preco.toStringAsFixed(2)} ',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                  TextSpan(
+                    text: 'R\$ ${precoComDesconto.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      color: isPromocao ? Colors.purple : Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (isPromocao)
+                    TextSpan(
+                      text: ' (-${descontoPercentual.toString()}% de Desconto)',
+                      style: TextStyle(
+                        color: Colors.purple,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                ],
               ),
             ),
-          if (isPromocao)
-            SizedBox(height: 4.0), // Adiciona espaçamento
-          RichText(
-            text: TextSpan(
-              children: [
-                if (isPromocao)
-                  TextSpan(
-                    text: 'R\$ ${produto.preco.toStringAsFixed(2)} ',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold, // Adiciona negrito
-                      decoration: TextDecoration.lineThrough,
-                    ),
-                  ),
-                TextSpan(
-                  text: 'R\$ ${precoComDesconto.toStringAsFixed(2)}',
+            SizedBox(height: 8.0),
+            Text(
+              'Total: R\$ ${(precoComDesconto * produto.quantidade).toStringAsFixed(2)}',
+              style: TextStyle(
+                color: const Color.fromARGB(255, 0, 0, 0),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              color: Colors.red,
+              icon: Icon(Icons.remove),
+              onPressed: () {
+                setState(() {
+                  if (produto.quantidade > 0) {
+                    produto.quantidade--;
+                    if (produto.quantidade == 0) {
+                      widget.onProdutoSelecionadoArg(produto);
+                    } else {
+                      widget.onProdutoSelecionadoArg(produto);
+                    }
+                  }
+                });
+              },
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _mostrarDialogoTrocaQuantidade(produto);
+              },
+              child: Container(
+                padding: EdgeInsets.all(4.0),
+                child: Text(
+                  produto.quantidade.toString(),
                   style: TextStyle(
-                    color: isPromocao ? Colors.red : Colors.black,
-                    fontWeight: FontWeight.bold, // Adiciona negrito
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                if (isPromocao)
-                  TextSpan(
-                    text: ' (-${descontoPercentual.toString()}%)',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold, // Adiciona negrito
-                    ),
-                  ),
-              ],
+              ),
             ),
-          ),
-        ],
+            IconButton(
+              color: Colors.green,
+              icon: Icon(Icons.add),
+              onPressed: () {
+                setState(() {
+                  produto.quantidade++;
+                  widget.onProdutoSelecionadoArg(produto);
+                  widget.onProdutoSelecionadoArg(isPromocao);
+                });
+              },
+            ),
+          ],
+        ),
       ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            color: Colors.red,
-            icon: Icon(Icons.remove),
-            onPressed: () {
-              setState(() {
-                if (produto.quantidade > 0) {
-                  produto.quantidade--;
+    );
+  }
 
-                  // Notifique sobre a remoção apenas se a quantidade for zero
-                  if (produto.quantidade == 0) {
+  void _mostrarDialogoTrocaQuantidade(ListaProdutos produto) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        int novaQuantidade = produto.quantidade;
+        return AlertDialog(
+          title: Text('Escolha a quantidade'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                autofocus: true,
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                controller:
+                    TextEditingController(text: novaQuantidade.toString()),
+                onChanged: (value) {
+                  novaQuantidade = int.tryParse(value) ?? 0;
+                },
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                if (novaQuantidade >= 0) {
+                  setState(() {
+                    produto.quantidade = novaQuantidade;
                     widget.onProdutoSelecionadoArg(produto);
-                  } else {
-                    // Se a quantidade não for zero, atualize a lista normalmente
-                    widget.onProdutoSelecionadoArg(produto);
-                  }
+                  });
+                  Navigator.pop(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('A quantidade não pode ser negativa.'),
+                    ),
+                  );
                 }
-              });
-            },
-          ),
-          Text(
-            produto.quantidade.toString(),
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold, // Adiciona negrito
+              },
+              child: Text('Confirmar'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Voltar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _mostrarDetalhesProduto(ListaProdutos produto) {
+    int novaQuantidade = produto.quantidade;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(produto.nome),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.network(
+                'https://img.freepik.com/psd-gratuitas/modelo-de-midia-social-de-hamburguer-quente-e-picante_505751-2882.jpg?w=740&t=st=1709063678~exp=1709064278~hmac=a94ba5447b6c62caba1604d0b8b2018c10ca87b091c0dbb9b5d98c1774be3f44${produto.idPromo[0]}',
+                width: 300,
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+              SizedBox(height: 8.0),
+              Text('Preço: R\$ ${produto.preco.toStringAsFixed(2)}'),
+              SizedBox(height: 8.0),
+              Text(
+                  'Ingredientes: ${produto.nome} Pão, Alface, 1 Smash, Queijo ...'),
+            ],
           ),
-          IconButton(
-            color: Colors.green,
-            icon: Icon(Icons.add),
-            onPressed: () {
-              setState(() {
-                produto.quantidade++;
-                widget.onProdutoSelecionadoArg(produto);
-              });
-            },
+           actions: [
+             TextField(
+                textAlign: TextAlign.center,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                maxLines: 1,
+                decoration: InputDecoration(border: OutlineInputBorder()),
+                controller:
+                    TextEditingController(text: novaQuantidade.toString()),
+                onChanged: (value) {
+                  novaQuantidade = int.tryParse(value) ?? 0;
+                },
+              ),
+            SizedBox(height: 8.0),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    if (novaQuantidade >= 0) {
+                      setState(() {
+                        produto.quantidade = novaQuantidade;
+                        widget.onProdutoSelecionadoArg(produto);
+                      });
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('A quantidade não pode ser negativa.'),
+                        ),
+                      );
+                    }
+                  },
+                  child: Text('Confirmar'),
+                ),
+              SizedBox(width: 10.0),
+            
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Voltar'),
+            ),
+          
+          ],
           ),
-        ],
-      ),
-    ),
-  );
-}
+           ],
+        );
+      },
+    );
+  }
 }
